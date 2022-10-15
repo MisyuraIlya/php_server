@@ -1,18 +1,27 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+declare(strict_types = 1);
 
-$router = new \App\Router();
-//$router->register('/', function(){
-//    echo 'Home';
-//});
-//$router->register('/invoces', function(){
-//    echo 'Invoces';
-//});
+use App\App;
+use App\Config;
+use App\Classes\HomeController;
+use App\Router;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
+
+//define('STORAGE_PATH', __DIR__ . '/../storage');
+//define('VIEW_PATH', __DIR__ . '/../views');
+
+$router = new Router();
 
 $router
-    ->register('/',[App\Classes\HomeController::class,'index'])
-    ->register('/invoices',[App\Classes\InvoiceController::class,'index'])
-    ->register('/invoices/create',[App\Classes\InvoiceController::class,'create']);
+    ->get('/', [HomeController::class, 'index']);
 
-$router->resolve($_SERVER['REQUEST_URI']);
+(new App(
+    $router,
+    ['uri' => $_SERVER['REQUEST_URI'], 'method' => $_SERVER['REQUEST_METHOD']],
+    new Config($_ENV)
+))->run();
